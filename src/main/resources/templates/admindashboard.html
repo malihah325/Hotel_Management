@@ -1,0 +1,17 @@
+<!-- src/main/resources/templates/admin-dashboard.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Welcome to Admin Dashboard</h1>
+    
+    <ul>
+		<li><a th:href="@{/admin/room}">Manage Rooms</a></li>
+		
+        <li><a th:href="@{/admin/customers}">Manage Customers</a></li>
+        <li><a th:href="@{/admin/bookings}">Manage Bookings</a></li>
+    </ul>
+</body>
+</html>
