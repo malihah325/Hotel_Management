@@ -7,12 +7,12 @@ import com.example.hotelmanagement.entity.Customer;
 import com.example.hotelmanagement.entity.Payment;
 import com.example.hotelmanagement.entity.Room;
 import com.example.hotelmanagement.enums.RoomStatus;
+import com.example.hotelmanagement.helperClass.RoomConverter;
 import com.example.hotelmanagement.repositories.BookingRepo;
 import com.example.hotelmanagement.repositories.CustomerRepo;
 import com.example.hotelmanagement.repositories.PaymentRepo;
 import com.example.hotelmanagement.repositories.RoomRepo;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,19 +21,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AdminService {
 
-    @Autowired private CustomerRepo customerRepo;
-    @Autowired private RoomRepo roomRepo;
-    @Autowired private BookingRepo bookingRepo;
-    @Autowired private PaymentRepo paymentRepo;
-    @Autowired private RoomService roomService;
+    private final CustomerRepo customerRepo;
+    private final RoomRepo roomRepo;
+    private final BookingRepo bookingRepo;
+    private final PaymentRepo paymentRepo;
+    private final RoomService roomService;
+    private final RoomConverter roomConverter; // ✅ inject converter
+
     // -------------------- Customer Management --------------------
 
     public List<CustomerDto> getAllCustomers() {
         return customerRepo.findAll()
                 .stream()
-                .map(this::toDto)
+                .map(this::toDto)   // ✅ helper method below
                 .collect(Collectors.toList());
     }
 
@@ -45,24 +48,24 @@ public class AdminService {
         return false;
     }
 
+    // ✅ Proper mapping method for Customer -> CustomerDto
     private CustomerDto toDto(Customer c) {
-        CustomerDto dto = new CustomerDto();
-        dto.setId(c.getId());
-        dto.setCustomerName(c.getCustomerName());
-        return dto;
+        return CustomerDto.builder()
+                .id(c.getId())
+                .customerName(c.getCustomerName())
+                .email(c.getEmail())
+                .phone(c.getPhone())
+                .registeredAt(c.getRegisteredAt())
+                .build();
     }
 
-
     // -------------------- Room Management --------------------
-
- 
 
     public Room createRoom(Room room) {
         room.setStatus(RoomStatus.AVAILABLE);
         if (room.getDiscount() == null) {
             room.setDiscount(0.0);
         }
-
         return roomRepo.save(room);
     }
 
@@ -96,7 +99,7 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    // -------------------- Booking Management --------------------
+    // -------------------- Discount Management --------------------
 
     public RoomDTO applyDiscountToRoom(Long roomId, Double discount) {
         if (discount < 0 || discount > 100) {
@@ -105,19 +108,25 @@ public class AdminService {
 
         Room room = roomService.getRoomById(roomId);
         room.setDiscount(discount);
+
         Room updatedRoom = roomService.updateRoom(roomId, room)
-                                      .orElseThrow(() -> new RuntimeException("Room update failed"));
-        return roomService.convertToDTO(updatedRoom);
+                .orElseThrow(() -> new RuntimeException("Room update failed"));
+
+        return roomConverter.convertToDTO(updatedRoom); // ✅ use converter
     }
 
-    // Remove discount from a room
     public RoomDTO removeDiscountFromRoom(Long roomId) {
         Room room = roomService.getRoomById(roomId);
         room.setDiscount(0.0);
+
         Room updatedRoom = roomService.updateRoom(roomId, room)
-                                      .orElseThrow(() -> new RuntimeException("Room update failed"));
-        return roomService.convertToDTO(updatedRoom);
+                .orElseThrow(() -> new RuntimeException("Room update failed"));
+
+        return roomConverter.convertToDTO(updatedRoom); // ✅ use converter
     }
+
+    // -------------------- Booking Management --------------------
+
     public void deleteBooking(Long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
@@ -125,7 +134,6 @@ public class AdminService {
         if (booking.isCheckedIn()) {
             throw new IllegalStateException("Cannot delete booking after check-in.");
         }
-
         bookingRepo.delete(booking);
     }
 
@@ -142,7 +150,6 @@ public class AdminService {
         if (payment.getPaymentDate().isAfter(LocalDateTime.now().minusDays(3))) {
             throw new IllegalStateException("Cannot delete payments made in the last 3 days.");
         }
-
         paymentRepo.delete(payment);
     }
 }

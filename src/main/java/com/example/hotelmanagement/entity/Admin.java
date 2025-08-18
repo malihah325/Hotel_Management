@@ -1,5 +1,7 @@
 package com.example.hotelmanagement.entity;
 
+import java.time.LocalDate;
+
 import com.example.hotelmanagement.enums.Role;
 
 import jakarta.persistence.Entity;
@@ -8,8 +10,16 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Admin implements User {
 
     @Id
@@ -23,17 +33,5 @@ public class Admin implements User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.ADMIN;
 
-    // Getters
-    @Override public Long getId() { return id; }
-    @Override public String getUsername() { return username; }
-    @Override public String getPassword() { return password; }
-    @Override public String getEmail() { return email; }
-    @Override public Role getRole() { return role; }
 
-    // Setters
-    public void setId(Long id) { this.id = id; }
-    public void setUsername(String username) { this.username = username; }
-    public void setPassword(String password) { this.password = password; }
-    public void setEmail(String email) { this.email = email; }
-    public void setRole(Role role) { this.role = role; }
 }

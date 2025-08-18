@@ -3,28 +3,29 @@ package com.example.hotelmanagement.controller;
 import com.example.hotelmanagement.dto.CustomerDto;
 import com.example.hotelmanagement.dto.RoomDTO;
 import com.example.hotelmanagement.entity.Booking;
-import com.example.hotelmanagement.entity.Payment;
 import com.example.hotelmanagement.entity.Room;
+import com.example.hotelmanagement.helperClass.RoomConverter;
 import com.example.hotelmanagement.services.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 @Validated
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class AdminController {
 
-    @Autowired private AdminService adminService;
-    @Autowired private RoomService roomService;
-    @Autowired private CustomerService customerService;
-    @Autowired private PaymentService paymentService;
-    @Autowired private BookingService bookingService;
+    private final AdminService adminService;
+    private final RoomService roomService;
+    private final CustomerService customerService;
+    private final BookingService bookingService;
+    private final RoomConverter roomConverter; // ✅ Inject converter here
 
     @GetMapping("/rooms")
     public ResponseEntity<List<RoomDTO>> getAllRooms() {
@@ -33,14 +34,15 @@ public class AdminController {
 
     @PostMapping("/rooms")
     public ResponseEntity<RoomDTO> createRoom(@RequestBody RoomDTO dto) {
-        var room = adminService.createRoom(roomService.convertToEntity(dto));
-        return ResponseEntity.ok(roomService.convertToDTO(room));
+        Room room = roomConverter.convertToEntity(dto);       // ✅ use converter
+        Room saved = adminService.createRoom(room);
+        return ResponseEntity.ok(roomConverter.convertToDTO(saved));
     }
 
     @PutMapping("/rooms/{id}")
     public ResponseEntity<RoomDTO> updateRoom(@PathVariable("id") Long id, @RequestBody RoomDTO dto) {
-        return roomService.updateRoom(id, roomService.convertToEntity(dto))
-                .map(r -> ResponseEntity.ok(roomService.convertToDTO(r)))
+        return roomService.updateRoom(id, roomConverter.convertToEntity(dto))
+                .map(r -> ResponseEntity.ok(roomConverter.convertToDTO(r)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -88,8 +90,4 @@ public class AdminController {
             return ResponseEntity.notFound().build();
         }
     }
-
-
-
-
 }

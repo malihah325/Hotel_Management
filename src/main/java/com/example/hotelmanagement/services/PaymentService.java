@@ -7,26 +7,28 @@ import com.example.hotelmanagement.entity.Room;
 import com.example.hotelmanagement.enums.PaymentMethod;
 import com.example.hotelmanagement.repositories.BookingRepo;
 import com.example.hotelmanagement.repositories.PaymentRepo;
-import com.example.hotelmanagement.repositories.RoomRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
 
-    @Autowired private PaymentRepo paymentRepo;
-    @Autowired private BookingRepo bookingRepo;
-    @Autowired private RoomRepo roomRepo;
+    private final PaymentRepo paymentRepo;
+    private final BookingRepo bookingRepo;
 
+    // ✅ Make a payment
     public PaymentResponseDTO makePayment(Long bookingId, Payment paymentRequest) {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         Room room = booking.getRoom();
-        if (room == null) throw new RuntimeException("Room not associated");
+        if (room == null) {
+            throw new RuntimeException("Room not associated with booking");
+        }
 
         double basePrice = room.getPriceperDay();
         double discount = room.getDiscount();
@@ -37,31 +39,29 @@ public class PaymentService {
         payment.setAccountNumber(paymentRequest.getAccountNumber());
         payment.setMethod(paymentRequest.getMethod());
         payment.setTotalAmount(totalAmount);
-        payment.setAccountBalance(payment.getAccountBalance()); // ✅ Assuming accountBalance = totalAmount
-        payment.setDiscount(discountAmount);    // ✅ Optional but useful
+        payment.setAccountBalance(totalAmount);   
+        payment.setDiscount(discountAmount);
         payment.setPaid(true);
-        payment.setPaymentDate(LocalDateTime.now()); // ✅ Required
-        payment.setBooking(booking); // ✅ Link to booking
-        payment.setCustomer(booking.getCustomer()); // ✅ Set customer (important)
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setBooking(booking);
+        payment.setCustomer(booking.getCustomer());
 
         Payment saved = paymentRepo.save(payment);
 
-        // Update booking with payment reference
+        // Link payment back to booking
         booking.setPayment(saved);
         bookingRepo.save(booking);
 
-        // Build response
-        PaymentResponseDTO dto = new PaymentResponseDTO();
-        dto.setPaymentId(saved.getId());
-        dto.setAccountNumber(saved.getAccountNumber());
-        dto.setPaymentMethod(saved.getMethod());
-        dto.setTotalAmount(saved.getTotalAmount());
-        dto.setPaid(saved.isPaid());
-        dto.setBookingId(bookingId);
-
-        return dto;
+ 
+        return PaymentResponseDTO.builder()
+                .paymentId(saved.getId())
+                .accountNumber(saved.getAccountNumber())
+                .paymentMethod(saved.getMethod())
+                .totalAmount(saved.getTotalAmount())
+                .paid(saved.isPaid())
+                .bookingId(bookingId)
+                .build();
     }
-
 
     // ✅ Get payment by ID
     public Payment getPaymentById(Long id) {
@@ -74,7 +74,7 @@ public class PaymentService {
         return paymentRepo.findAll();
     }
 
-    // ✅ Update an existing payment
+    // ✅ Update payment
     public Payment updatePayment(Long id, Payment updatedPayment) {
         return paymentRepo.findById(id).map(payment -> {
             payment.setAccountNumber(updatedPayment.getAccountNumber());
@@ -85,7 +85,7 @@ public class PaymentService {
         }).orElseThrow(() -> new RuntimeException("Payment not found"));
     }
 
-    // ✅ Delete a payment by ID
+    // ✅ Delete payment
     public void deletePayment(Long id) {
         if (!paymentRepo.existsById(id)) {
             throw new RuntimeException("Payment not found");
@@ -93,7 +93,7 @@ public class PaymentService {
         paymentRepo.deleteById(id);
     }
 
-    // ✅ Helper methods for BookingService DTO mapping
+    // ✅ Helper methods
     public String getPaymentAccountNumberById(Long paymentId) {
         return paymentRepo.findById(paymentId)
                 .map(Payment::getAccountNumber)

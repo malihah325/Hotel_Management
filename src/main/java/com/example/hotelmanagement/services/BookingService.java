@@ -1,29 +1,33 @@
 package com.example.hotelmanagement.services;
 
 import com.example.hotelmanagement.dto.BookingDto;
-import com.example.hotelmanagement.dto.BookingResponseDto;
-import com.example.hotelmanagement.dto.CustomerSummaryDto;
-import com.example.hotelmanagement.dto.RoomSummaryDto;
+import com.example.hotelmanagement.dto.CustomerDto;
+import com.example.hotelmanagement.dto.RoomDTO;
 import com.example.hotelmanagement.entity.Booking;
 import com.example.hotelmanagement.entity.Customer;
 import com.example.hotelmanagement.entity.Room;
 import com.example.hotelmanagement.enums.BookingStatus;
 import com.example.hotelmanagement.enums.RoomStatus;
+import com.example.hotelmanagement.helperClass.RoomConverter;
 import com.example.hotelmanagement.repositories.BookingRepo;
 import com.example.hotelmanagement.repositories.CustomerRepo;
 import com.example.hotelmanagement.repositories.RoomRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BookingService {
 
-    @Autowired private BookingRepo bookingRepo;
-    @Autowired private CustomerRepo customerRepo;
-    @Autowired private RoomRepo roomRepo;
+    private final BookingRepo bookingRepo;
+    private final CustomerRepo customerRepo;
+    private final RoomRepo roomRepo;
+    private final RoomConverter roomConverter;
+
+    // -------------------- Create Booking --------------------
     public Booking createBooking(BookingDto dto) {
         Customer customer = customerRepo.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
@@ -44,7 +48,6 @@ public class BookingService {
         if (checkIn.isBefore(today)) {
             throw new RuntimeException("Check-in date must be today or in the future.");
         }
-
         if (!checkOut.isAfter(checkIn)) {
             throw new RuntimeException("Check-out date must be after check-in date.");
         }
@@ -77,24 +80,25 @@ public class BookingService {
         booking.setDiscountAmount(discountAmount);
         booking.setTotalPrice(basePrice - discountAmount);
 
-        // ✅ Mark room as booked
+        // ✅ Mark room as BOOKED
         room.setStatus(RoomStatus.BOOKED);
         roomRepo.save(room);
 
         return bookingRepo.save(booking);
     }
 
-    private boolean datesOverlap(LocalDate newStart, LocalDate newEnd, LocalDate existingStart, LocalDate existingEnd) {
+    // -------------------- Date Validation --------------------
+    private boolean datesOverlap(LocalDate newStart, LocalDate newEnd,
+                                 LocalDate existingStart, LocalDate existingEnd) {
         return !newEnd.isBefore(existingStart) && !newStart.isAfter(existingEnd);
     }
 
-
+    // -------------------- CRUD --------------------
     public Booking getBookingById(Long id) {
         return bookingRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
     }
 
-  
     public List<Booking> getAllBookings() {
         return bookingRepo.findAll();
     }
@@ -102,10 +106,9 @@ public class BookingService {
     public List<Booking> getBookingsByCustomer(Customer customer) {
         return bookingRepo.findByCustomer(customer);
     }
-    
+
     public Booking updateBooking(Long id, BookingDto dto) {
-        Booking booking = bookingRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        Booking booking = getBookingById(id);
 
         if (dto.getCheckInDate() != null) {
             booking.setCheckInDate(dto.getCheckInDate());
@@ -119,8 +122,7 @@ public class BookingService {
     }
 
     public void deleteBooking(Long id) {
-        Booking booking = bookingRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        Booking booking = getBookingById(id);
 
         Room room = booking.getRoom();
         room.setStatus(RoomStatus.AVAILABLE);
@@ -129,10 +131,9 @@ public class BookingService {
         bookingRepo.deleteById(id);
     }
 
+    // -------------------- Status Management --------------------
     public void cancelBooking(Long id) {
-        Booking booking = bookingRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
-
+        Booking booking = getBookingById(id);
         booking.setBookingStatus(BookingStatus.CANCELLED);
         booking.getRoom().setStatus(RoomStatus.AVAILABLE);
         bookingRepo.save(booking);
@@ -159,38 +160,32 @@ public class BookingService {
         roomRepo.save(booking.getRoom());
         return bookingRepo.save(booking);
     }
-    public BookingResponseDto convertToResponseDto(Booking booking) {
-        BookingResponseDto dto = new BookingResponseDto();
 
-        dto.setId(booking.getId());
-        dto.setCheckInDate(booking.getCheckInDate());
-        dto.setCheckOutDate(booking.getCheckOutDate());
-        dto.setTotalPrice(booking.getTotalPrice());
-        dto.setBookingStatus(booking.getBookingStatus().toString());
-        dto.setPaymentMethod(booking.getPaymentMethod().toString());
-        dto.setAccountNumber(booking.getAccountNumber());
-        dto.setDiscountApplied(booking.isDiscountApplied());
-        dto.setCheckedIn(booking.isCheckedIn());
-        dto.setDiscountAmount(booking.getDiscountAmount());
+    // -------------------- DTO Conversion --------------------
+    public BookingDto convertToDto(Booking booking) {
+        // ✅ Minimal customer info
+        CustomerDto customerDto = CustomerDto.builder()
+                .id(booking.getCustomer().getId())
+                .customerName(booking.getCustomer().getCustomerName())
+                .build();
 
-        // Customer summary
-        CustomerSummaryDto customerDto = new CustomerSummaryDto();
-        customerDto.setId(booking.getCustomer().getId());
-        customerDto.setCustomerName(booking.getCustomer().getCustomerName());
-        dto.setCustomer(customerDto);
+        // ✅ Room info via converter
+        RoomDTO roomDto = roomConverter.convertToDTO(booking.getRoom());
 
-        // Room summary
-        RoomSummaryDto roomDto = new RoomSummaryDto();
-        roomDto.setId(booking.getRoom().getId());
-        roomDto.setPriceperDay(booking.getRoom().getPriceperDay());
-        roomDto.setRoomCapacity(booking.getRoom().getRoomCapacity());
-        roomDto.setRoomType(booking.getRoom().getRoomType().toString());
-        roomDto.setStatus(booking.getRoom().getStatus().toString());
-        roomDto.setDiscount(booking.getRoom().getDiscount());
-        dto.setRoom(roomDto);
-
-        return dto;
+        // ✅ Booking response
+        return BookingDto.builder()
+                .id(booking.getId())
+                .checkInDate(booking.getCheckInDate())
+                .checkOutDate(booking.getCheckOutDate())
+                .totalPrice(booking.getTotalPrice())
+                .bookingStatus(booking.getBookingStatus())
+                .paymentMethod(booking.getPaymentMethod())
+                .accountNumber(booking.getAccountNumber())
+                .discountApplied(booking.isDiscountApplied())
+                .checkedIn(booking.isCheckedIn())
+                .discountAmount(booking.getDiscountAmount())
+                .customer(customerDto)
+                .room(roomDto)
+                .build();
     }
-
-
 }

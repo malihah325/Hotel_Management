@@ -1,25 +1,21 @@
 package com.example.hotelmanagement.controller;
 
 import com.example.hotelmanagement.dto.BookingDto;
-import com.example.hotelmanagement.dto.BookingResponseDto;
 import com.example.hotelmanagement.dto.CustomerDto;
 import com.example.hotelmanagement.dto.PaymentResponseDTO;
 import com.example.hotelmanagement.dto.RoomDTO;
-import com.example.hotelmanagement.entity.*;
+import com.example.hotelmanagement.entity.Booking;
+import com.example.hotelmanagement.entity.Customer;
+import com.example.hotelmanagement.entity.Payment;
 import com.example.hotelmanagement.enums.Role;
-import com.example.hotelmanagement.enums.RoomStatus;
 import com.example.hotelmanagement.handler.ResourceNotFoundException;
-import com.example.hotelmanagement.repositories.BookingRepo;
 import com.example.hotelmanagement.repositories.CustomerRepo;
 import com.example.hotelmanagement.repositories.PaymentRepo;
-import com.example.hotelmanagement.repositories.RoomRepo;
 import com.example.hotelmanagement.services.BookingService;
 import com.example.hotelmanagement.services.PaymentService;
 import com.example.hotelmanagement.services.RoomService;
-
 import jakarta.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,35 +25,21 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-@Valid
+
 @RestController
 @RequestMapping("/api/customer")
+@RequiredArgsConstructor
 public class CustomerController {
 
-    @Autowired
-    private CustomerRepo customerRepo;
-
-    @Autowired
-    private BookingRepo bookingRepo;
-
-    @Autowired
-    private PaymentRepo paymentRepo;
-
-    @Autowired
-    private RoomRepo roomRepo;
-
-    @Autowired
-    private RoomService roomService;
-
-    @Autowired
-    private PaymentService paymentService;
-    @Autowired
-    private BookingService bookingService;
+    private final CustomerRepo customerRepo;
+    private final PaymentRepo paymentRepo;
+    private final RoomService roomService;
+    private final PaymentService paymentService;
+    private final BookingService bookingService;
 
     // ======================== Registration ========================
-
     @PostMapping("/signup")
-    public ResponseEntity<CustomerDto> register(@RequestBody CustomerDto dto) {
+    public ResponseEntity<CustomerDto> register(@Valid @RequestBody CustomerDto dto) {
         Customer customer = toEntity(dto);
         customer.setRole(Role.CUSTOMER);
         Customer saved = customerRepo.save(customer);
@@ -65,7 +47,6 @@ public class CustomerController {
     }
 
     // ======================== Profile ========================
-
     @GetMapping("/profile")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CustomerDto> getMyProfile(Principal principal) {
@@ -94,42 +75,47 @@ public class CustomerController {
         return ResponseEntity.ok(availableRooms);
     }
 
-
     // ======================== Bookings ========================
-
     @PostMapping("/bookings")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<BookingResponseDto> bookRoom(@RequestBody BookingDto request, Principal principal) {
+    public ResponseEntity<BookingDto> bookRoom(@Valid @RequestBody BookingDto request, Principal principal) {
         String email = principal.getName();
         Customer customer = customerRepo.findByEmail(email);
+        if (customer == null) {
+            throw new ResourceNotFoundException("Customer not found");
+        }
+
         request.setCustomerId(customer.getId());
 
         Booking booking = bookingService.createBooking(request);
-        BookingResponseDto response = bookingService.convertToResponseDto(booking);
+        BookingDto response = bookingService.convertToDto(booking);
 
         return ResponseEntity.ok(response);
     }
 
-
     @GetMapping("/bookings")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<List<BookingResponseDto>> getCustomerBookings(Principal principal) {
+    public ResponseEntity<List<BookingDto>> getCustomerBookings(Principal principal) {
         String email = principal.getName();
         Customer customer = customerRepo.findByEmail(email);
+        if (customer == null) {
+            throw new ResourceNotFoundException("Customer not found");
+        }
 
         List<Booking> bookings = bookingService.getBookingsByCustomer(customer);
-        List<BookingResponseDto> response = bookings.stream()
-            .map(bookingService::convertToResponseDto)
-            .collect(Collectors.toList());
+        List<BookingDto> response = bookings.stream()
+                .map(bookingService::convertToDto)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
     }
 
     // ======================== Payments ========================
-
     @PostMapping("/makepayment/{bookingId}")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<PaymentResponseDTO> makePayment(@PathVariable("bookingId") Long bookingId, @RequestBody Payment payment) {
+    public ResponseEntity<PaymentResponseDTO> makePayment(
+            @PathVariable("bookingId") Long bookingId,
+            @Valid @RequestBody Payment payment) {
         PaymentResponseDTO response = paymentService.makePayment(bookingId, payment);
         return ResponseEntity.ok(response);
     }
@@ -139,11 +125,13 @@ public class CustomerController {
     public ResponseEntity<List<Payment>> getMyPayments(Principal principal) {
         String email = principal.getName();
         Customer customer = customerRepo.findByEmail(email);
+        if (customer == null) {
+            throw new ResourceNotFoundException("Customer not found");
+        }
         return ResponseEntity.ok(paymentRepo.findByCustomer(customer));
     }
 
     // ======================== DTO Mapping ========================
-
     private Customer toEntity(CustomerDto dto) {
         Customer c = new Customer();
         c.setCustomerName(dto.getCustomerName());
@@ -154,12 +142,12 @@ public class CustomerController {
     }
 
     private CustomerDto toDto(Customer c) {
-        CustomerDto dto = new CustomerDto();
-        dto.setId(c.getId());
-        dto.setCustomerName(c.getCustomerName());
-        dto.setEmail(c.getEmail());
-        dto.setPhone(c.getPhone());
-        dto.setRegisteredAt(c.getRegisteredAt());
-        return dto;
+        return CustomerDto.builder()
+                .id(c.getId())
+                .customerName(c.getCustomerName())
+                .email(c.getEmail())
+                .phone(c.getPhone())
+                .registeredAt(c.getRegisteredAt())
+                .build();
     }
 }

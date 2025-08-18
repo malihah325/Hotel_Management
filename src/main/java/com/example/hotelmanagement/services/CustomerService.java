@@ -1,54 +1,59 @@
 package com.example.hotelmanagement.services;
 
 import com.example.hotelmanagement.dto.CustomerDto;
-import com.example.hotelmanagement.dto.RoomDTO;
+import com.example.hotelmanagement.dto.CustomerSignupDTO;
+import com.example.hotelmanagement.dto.CustomerUpdateDTO;
 import com.example.hotelmanagement.entity.Customer;
 import com.example.hotelmanagement.enums.Role;
-import com.example.hotelmanagement.enums.RoomStatus;
 import com.example.hotelmanagement.repositories.CustomerRepo;
-import com.example.hotelmanagement.repositories.RoomRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerService {
-    @Autowired private CustomerRepo customerRepository;
-    @Autowired private PasswordEncoder passwordEncoder;
-    @Autowired private RoomRepo roomRepo;
-    @Autowired private RoomService roomService;
 
+    private final CustomerRepo customerRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    // -------------------- Create --------------------
     public Customer createCustomer(Customer customer) {
         customer.setRole(Role.CUSTOMER);
         customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         return customerRepository.save(customer);
     }
 
+    // -------------------- Read --------------------
     public List<CustomerDto> getAllCustomers() {
         return customerRepository.findAll().stream()
-            .map(this::toDto)
-            .collect(Collectors.toList());
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     public Optional<CustomerDto> getCustomerById(Long id) {
         return customerRepository.findById(id).map(this::toDto);
     }
 
-    public Optional<CustomerDto> updateCustomer(Long id, CustomerDto dto) {
+    // -------------------- Update --------------------
+    public Optional<CustomerDto> updateCustomer(Long id, CustomerUpdateDTO dto) {
         return customerRepository.findById(id).map(existing -> {
             existing.setCustomerName(dto.getCustomerName());
             existing.setEmail(dto.getEmail());
             existing.setPhone(dto.getPhone());
-            existing.setRegisteredAt(dto.getRegisteredAt());
+
+            if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+                existing.setPassword(passwordEncoder.encode(dto.getPassword()));
+            }
+
             return toDto(customerRepository.save(existing));
         });
     }
-
+    // -------------------- Delete --------------------
     public boolean deleteCustomer(Long id) {
         if (customerRepository.existsById(id)) {
             customerRepository.deleteById(id);
@@ -57,27 +62,26 @@ public class CustomerService {
         return false;
     }
 
-  
-
-
+    // -------------------- DTO Conversion --------------------
     public CustomerDto toDto(Customer c) {
-        CustomerDto dto = new CustomerDto();
-        dto.setId(c.getId());
-        dto.setCustomerName(c.getCustomerName());
-        dto.setEmail(c.getEmail());
-        dto.setPhone(c.getPhone());
-        dto.setRegisteredAt(c.getRegisteredAt());
-        return dto;
+        return CustomerDto.builder()
+                .id(c.getId())
+                .customerName(c.getCustomerName())
+                .email(c.getEmail())
+                .phone(c.getPhone())
+                .registeredAt(c.getRegisteredAt())
+                .role(c.getRole())
+                .build();
     }
 
-    public Customer toEntity(CustomerDto dto) {
-        Customer c = new Customer();
-        c.setId(dto.getId());
-        c.setCustomerName(dto.getCustomerName());
-        c.setEmail(dto.getEmail());
-        c.setPhone(dto.getPhone());
-        c.setRegisteredAt(dto.getRegisteredAt());
-        c.setPassword(dto.getPassword());
-        return c;
+    // Map signup request to entity
+    public Customer toEntity(CustomerSignupDTO dto) {
+        return Customer.builder()
+                .customerName(dto.getCustomerName())
+                .email(dto.getEmail())
+                .phone(dto.getPhone())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .role(Role.CUSTOMER)
+                .build();
     }
 }

@@ -1,6 +1,7 @@
 package com.example.hotelmanagement.controller;
 
 import com.example.hotelmanagement.dto.CustomerDto;
+import com.example.hotelmanagement.dto.CustomerSignupDTO;
 import com.example.hotelmanagement.entity.Customer;
 import com.example.hotelmanagement.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class SingupController {
     }
 
     @PostMapping("/signup")
-    public String register(@ModelAttribute("customer") CustomerDto dto, Model model) {
+    public String register(@ModelAttribute("customer") CustomerSignupDTO dto, Model model) {
         Customer customer = customerService.toEntity(dto);
         customerService.createCustomer(customer);
         model.addAttribute("success", "Account created! Please login.");
