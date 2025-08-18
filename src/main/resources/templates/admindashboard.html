@@ -1,17 +1,90 @@
-<!-- src/main/resources/templates/admin-dashboard.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <title>Admin Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Management Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Welcome to Admin Dashboard</h1>
-    
-    <ul>
-		<li><a th:href="@{/admin/room}">Manage Rooms</a></li>
-		
-        <li><a th:href="@{/admin/customers}">Manage Customers</a></li>
-        <li><a th:href="@{/admin/bookings}">Manage Bookings</a></li>
-    </ul>
+
+  <header>
+    <h1>Hotel Management Dashboard</h1>
+    <nav>
+      <button onclick="showSection('rooms')">Rooms</button>
+      <button onclick="showSection('customers')">Customers</button>
+      <button onclick="showSection('bookings')">Bookings</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ROOMS SECTION -->
+    <section id="rooms" class="section active">
+      <h2>Rooms</h2>
+      <button onclick="window.location='/rooms/add'">+ Add Room</button>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Price</th>
+            <th>Capacity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="roomTable">
+          <!-- Filled dynamically with backend data -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- CUSTOMERS SECTION -->
+    <section id="customers" class="section">
+      <h2>Customers</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="customerTable">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- BOOKINGS SECTION -->
+    <section id="bookings" class="section">
+      <h2>Bookings</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
+            <th>Status</th>
+            <th>Customer</th>
+            <th>Room</th>
+          </tr>
+        </thead>
+        <tbody id="bookingTable">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+  </script>
 </body>
 </html>
