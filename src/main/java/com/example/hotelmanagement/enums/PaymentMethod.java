@@ -1,5 +1,5 @@
 package com.example.hotelmanagement.enums;
 
 public enum PaymentMethod {
-ACCOUNT, CARD
+ACCOUNT, DEBIT_CARD,CASH, CREDIT_CARD
 }

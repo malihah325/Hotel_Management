@@ -1,17 +1,22 @@
 package com.example.hotelmanagement.services;
 
+import com.example.hotelmanagement.converters.PaymentConverter;
 import com.example.hotelmanagement.dto.PaymentResponseDTO;
 import com.example.hotelmanagement.entity.Booking;
 import com.example.hotelmanagement.entity.Payment;
 import com.example.hotelmanagement.entity.Room;
+import com.example.hotelmanagement.enums.BookingStatus;
 import com.example.hotelmanagement.enums.PaymentMethod;
+import com.example.hotelmanagement.enums.RoomStatus;
 import com.example.hotelmanagement.repositories.BookingRepo;
 import com.example.hotelmanagement.repositories.PaymentRepo;
+import com.example.hotelmanagement.repositories.RoomRepo;
+import com.example.hotelmanagement.handler.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,90 +24,74 @@ public class PaymentService {
 
     private final PaymentRepo paymentRepo;
     private final BookingRepo bookingRepo;
+    private final RoomRepo roomRepo;
+    private final PaymentConverter paymentConverter;
 
-    // ✅ Make a payment
-    public PaymentResponseDTO makePayment(Long bookingId, Payment paymentRequest) {
+    public PaymentResponseDTO makePayment(Long bookingId,
+                                          PaymentMethod method,
+                                          String accountNumber,
+                                          double amountPaid) {
+
         Booking booking = bookingRepo.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
 
-        Room room = booking.getRoom();
-        if (room == null) {
-            throw new RuntimeException("Room not associated with booking");
+        if (booking.getBookingStatus() == BookingStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot pay for a cancelled booking.");
         }
 
-        double basePrice = room.getPriceperDay();
-        double discount = room.getDiscount();
-        double discountAmount = booking.isDiscountApplied() ? (basePrice * discount / 100.0) : 0;
-        double totalAmount = basePrice - discountAmount;
+        // Prevent double payment
+        if (booking.getPayment() != null && booking.getPayment().isPaid()) {
+            throw new IllegalStateException("Payment already completed for this booking.");
+        }
 
-        Payment payment = new Payment();
-        payment.setAccountNumber(paymentRequest.getAccountNumber());
-        payment.setMethod(paymentRequest.getMethod());
-        payment.setTotalAmount(totalAmount);
-        payment.setAccountBalance(totalAmount);   
-        payment.setDiscount(discountAmount);
-        payment.setPaid(true);
-        payment.setPaymentDate(LocalDateTime.now());
-        payment.setBooking(booking);
-        payment.setCustomer(booking.getCustomer());
+        double totalAmount = booking.getTotalPrice();
+        if (amountPaid > totalAmount) {
+            return PaymentResponseDTO.builder()
+                    .paid(false)
+                    .bookingId(bookingId)
+                    .totalAmount(totalAmount)
+                    .paymentMethod(method)
+                    .message("❌ Amount exceeds the required total: " + totalAmount)
+                    .build();
+        }
+
+        if (amountPaid < totalAmount) {
+            return PaymentResponseDTO.builder()
+                    .paid(false)
+                    .bookingId(bookingId)
+                    .totalAmount(totalAmount)
+                    .paymentMethod(method)
+                    .message("❌ Insufficient payment amount. Total required: " + totalAmount)
+                    .build();
+        }
+
+        Payment payment = Payment.builder()
+                .booking(booking)
+                .customer(booking.getCustomer())
+                .method(method)
+                .accountNumber(accountNumber)
+                .accountBalance(amountPaid - totalAmount)
+                .paymentDate(LocalDate.now())
+                .totalAmount(totalAmount)
+                .paid(true)
+                .build();
 
         Payment saved = paymentRepo.save(payment);
 
-        // Link payment back to booking
+        // Attach payment to booking and confirm
         booking.setPayment(saved);
+        booking.setBookingStatus(BookingStatus.CONFIRMED);
         bookingRepo.save(booking);
 
- 
-        return PaymentResponseDTO.builder()
-                .paymentId(saved.getId())
-                .accountNumber(saved.getAccountNumber())
-                .paymentMethod(saved.getMethod())
-                .totalAmount(saved.getTotalAmount())
-                .paid(saved.isPaid())
-                .bookingId(bookingId)
-                .build();
+        // Mark room as booked
+        Room room = booking.getRoom();
+        room.setStatus(RoomStatus.BOOKED);
+        roomRepo.save(room);
+
+        return paymentConverter.convertToDTO(saved);
     }
 
-    // ✅ Get payment by ID
-    public Payment getPaymentById(Long id) {
-        return paymentRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
-    }
-
-    // ✅ Get all payments
-    public List<Payment> getAllPayments() {
-        return paymentRepo.findAll();
-    }
-
-    // ✅ Update payment
-    public Payment updatePayment(Long id, Payment updatedPayment) {
-        return paymentRepo.findById(id).map(payment -> {
-            payment.setAccountNumber(updatedPayment.getAccountNumber());
-            payment.setMethod(updatedPayment.getMethod());
-            payment.setTotalAmount(updatedPayment.getTotalAmount());
-            payment.setPaid(updatedPayment.isPaid());
-            return paymentRepo.save(payment);
-        }).orElseThrow(() -> new RuntimeException("Payment not found"));
-    }
-
-    // ✅ Delete payment
-    public void deletePayment(Long id) {
-        if (!paymentRepo.existsById(id)) {
-            throw new RuntimeException("Payment not found");
-        }
-        paymentRepo.deleteById(id);
-    }
-
-    // ✅ Helper methods
-    public String getPaymentAccountNumberById(Long paymentId) {
-        return paymentRepo.findById(paymentId)
-                .map(Payment::getAccountNumber)
-                .orElse(null);
-    }
-
-    public PaymentMethod getPaymentMethodById(Long paymentId) {
-        return paymentRepo.findById(paymentId)
-                .map(Payment::getMethod)
-                .orElse(null);
+    public Optional<PaymentResponseDTO> getPaymentByBookingId(Long bookingId) {
+        return paymentRepo.findByBookingId(bookingId).map(paymentConverter::convertToDTO);
     }
 }

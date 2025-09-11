@@ -1,0 +1,12 @@
+package com.example.hotelmanagement.controller;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+
+    @GetMapping({"/", "/home"})
+    public String homePage() {
+        return "home"; // this matches home.html in templates folder
+    }
+}

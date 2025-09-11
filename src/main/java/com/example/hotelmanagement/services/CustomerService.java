@@ -1,12 +1,19 @@
 package com.example.hotelmanagement.services;
 
+import com.example.hotelmanagement.converters.CustomerConverter;
 import com.example.hotelmanagement.dto.CustomerDto;
 import com.example.hotelmanagement.dto.CustomerSignupDTO;
 import com.example.hotelmanagement.dto.CustomerUpdateDTO;
 import com.example.hotelmanagement.entity.Customer;
 import com.example.hotelmanagement.enums.Role;
+import com.example.hotelmanagement.handler.ResourceNotFoundException;
+import com.example.hotelmanagement.repositories.BookingRepo;
 import com.example.hotelmanagement.repositories.CustomerRepo;
+import com.example.hotelmanagement.repositories.PaymentRepo;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,68 +27,68 @@ public class CustomerService {
 
     private final CustomerRepo customerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BookingRepo bookingRepo;
+    private final PaymentRepo paymentRepo;
+    private final CustomerConverter customerConverter;
 
-    // -------------------- Create --------------------
-    public Customer createCustomer(Customer customer) {
-        customer.setRole(Role.CUSTOMER);
-        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
-        return customerRepository.save(customer);
+    // ------------------ Signup / Registration ------------------
+
+    /**
+     * Register a new customer from signup form.
+     */
+    public CustomerDto registerNewCustomer(CustomerSignupDTO signupDTO) {
+        Customer entity = customerConverter.convertToEntity(signupDTO);
+        entity.setPassword(passwordEncoder.encode(signupDTO.getPassword()));
+        entity.setRole(Role.CUSTOMER); // always CUSTOMER
+        Customer saved = customerRepository.save(entity);
+        return customerConverter.convertToDTO(saved);
     }
+    // ------------------ Read ------------------
 
-    // -------------------- Read --------------------
     public List<CustomerDto> getAllCustomers() {
         return customerRepository.findAll().stream()
-                .map(this::toDto)
+                .map(customerConverter::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    public Optional<CustomerDto> getCustomerById(Long id) {
-        return customerRepository.findById(id).map(this::toDto);
+    public CustomerDto getCustomerById(Long id) {
+        Customer c = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        return customerConverter.convertToDTO(c);
     }
 
-    // -------------------- Update --------------------
-    public Optional<CustomerDto> updateCustomer(Long id, CustomerUpdateDTO dto) {
-        return customerRepository.findById(id).map(existing -> {
-            existing.setCustomerName(dto.getCustomerName());
-            existing.setEmail(dto.getEmail());
-            existing.setPhone(dto.getPhone());
-
-            if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-                existing.setPassword(passwordEncoder.encode(dto.getPassword()));
-            }
-
-            return toDto(customerRepository.save(existing));
-        });
+    public CustomerDto findByEmailDto(String email) {
+        return customerRepository.findByEmail(email)
+                .map(customerConverter::convertToDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with email " + email));
     }
-    // -------------------- Delete --------------------
-    public boolean deleteCustomer(Long id) {
-        if (customerRepository.existsById(id)) {
-            customerRepository.deleteById(id);
-            return true;
+
+    // ------------------ Update ------------------
+
+    public CustomerDto updateCustomer(Long id, CustomerUpdateDTO dto) {
+        Customer existing = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        existing.setCustomerName(dto.getCustomerName());
+        existing.setEmail(dto.getEmail());
+        existing.setPhone(dto.getPhone());
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            existing.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
-        return false;
+        return customerConverter.convertToDTO(customerRepository.save(existing));
     }
 
-    // -------------------- DTO Conversion --------------------
-    public CustomerDto toDto(Customer c) {
-        return CustomerDto.builder()
-                .id(c.getId())
-                .customerName(c.getCustomerName())
-                .email(c.getEmail())
-                .phone(c.getPhone())
-                .registeredAt(c.getRegisteredAt())
-                .role(c.getRole())
-                .build();
+ 
+
+
+    // ------------------ For Security ------------------
+
+    /**
+     * Expose entity lookup for authentication (used by CustomerdetailService).
+     */
+    @Cacheable("customersByEmail")
+    public Optional<Customer> findByEmail(String email) {
+        return customerRepository.findByEmail(email);
     }
 
-    // Map signup request to entity
-    public Customer toEntity(CustomerSignupDTO dto) {
-        return Customer.builder()
-                .customerName(dto.getCustomerName())
-                .email(dto.getEmail())
-                .phone(dto.getPhone())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .role(Role.CUSTOMER)
-                .build();
-    }
 }

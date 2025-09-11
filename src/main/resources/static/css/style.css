@@ -1,0 +1,336 @@
+/* ========== Global Reset ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Playfair Display', serif;
+    background: linear-gradient(135deg, #3d4180, #705540);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ========== Background Slideshow ========== */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+.background img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+.background img.active {
+    opacity: 1;
+}
+header {
+	background: rgba(0, 0, 0, 0.6);
+	  position: fixed;
+	  width: 100%;
+	  text-align: center;
+	  margin: 0;
+	  padding: 15px;
+	  top: 0;
+	  margin-top: 0px;
+	}
+	header nav a {
+		color: #fff;
+		text-decoration: none;
+	}
+	header nav a:hover {
+	    color: #ffcc70;
+	  }
+/* ========== Form Container (Login/Signup) ========== */
+.form-container {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 40px 35px;
+    border-radius: 15px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+/* Form Headings */
+h1, h2, h3, h4 {
+    margin-bottom: 15px;
+	margin-top: 10px;
+    color: #fff;
+	
+}
+
+
+/* ========== Form Styling ========== */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+label {
+    font-weight: bold;
+    color: #ddd;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+input, select, textarea {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s ease;
+	font-family: 'Playfair Display', serif;
+}
+
+input:focus, select:focus {
+    box-shadow: 0 0 5px #ffcc70;
+}
+
+/* ========== Buttons ========== */
+button, .btn-primary {
+    background: linear-gradient(135deg, #3d4180, #705540);
+    color: #fff !important;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+	font-family: 'Playfair Display', serif;
+}
+
+
+
+.btn-warning {
+    --bs-btn-color: #fff !important;
+	}
+button:hover, .btn-primary:hover {
+    transform: scale(1.05);
+    color: #ffcc70 !important;
+}
+
+/* ========== Links & Messages ========== */
+p {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+a{
+	color: #fff;
+	padding: 10px 8px;
+	text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* ========== Dashboard/Content Pages ========== */
+.dashboard {
+    margin:6rem;
+    padding: 50px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 15px;
+    color: white;
+}
+h1{
+	text-align: center;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+    margin-bottom: 40px;
+    border-radius: 10px;	
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+	--bs-text-opacity: 1;
+    --bs-table-color:  rgba(var(--bs-white-rgb), var(--bs-text-opacity)) !important;
+	--bs-table-color-type: initial;
+	    --bs-table-bg:  rgba(0,0,0,0.8) !important;
+}
+
+.table td, .table th {
+    padding: 12px;
+    font-size: 1.1rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: white;
+}
+
+.status-available { background-color: #27ae60; }
+.status-booked { background-color: #e74c3c; }
+.status-maintenance { background-color: #f39c12; }
+
+.table-dark { --bs-table-bg: rgba(87 90 125 / 60%)!important; color: peachpuff; }
+thead { background-color: rgba(87 90 125 / 60%)!important; }
+
+.table tbody tr:hover td,
+.table tbody tr:hover th { color: #ffcc70 !important; }
+
+.table tbody tr:hover td button { color: #ffcc70 !important; }
+
+.tableCell {
+    text-align: center;
+    justify-content: center;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+    background: rgba(0, 0, 0, 0.6) !important;
+    color: #fff;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.section-header h2 { margin: 0; }
+
+.section-header .btn-primary {
+    padding: 14px;
+    font-size: 0.9rem;
+}
+
+.status-badge:hover { color: #ffcc70 !important; }
+
+.bg-warning { color: aliceblue !important; }
+.bg-primary { 
+
+	background: linear-gradient(135deg, #6f75da, #937b67) !important; }
+
+/* ========== Customer Dashboard Search Bar ========== */
+.customer-dashboard .search-bar {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.customer-dashboard .search-bar input[type="date"] {
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: none;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    outline: none;
+    transition: 0.3s ease;
+}
+
+.customer-dashboard .search-bar input[type="date"]:focus {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 6px #ffcc70;
+}
+
+.customer-dashboard .search-bar button {
+    padding: 12px 22px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3d4180, #705540);
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.customer-dashboard .search-bar button:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+}
+/* Modal Background */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(5px);
+}
+
+/* Modal Content Box */
+.modal-content {
+	background: rgba(0, 0, 0, 0.6) !important;
+	margin: 4rem auto !important;
+	padding: 30px;
+	border-radius: 12px;
+	width: 30rem;
+	color: white;
+	text-align: left;
+	animation: fadeIn 0.4s ease;
+}
+
+/* Close Button */
+.close {
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #ffcc70;
+}
+
+/* Input Styling */
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+}
+
+.modal-content button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #3d4180, #705540);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.modal-content button:hover {
+  transform: scale(1.05);
+}
+
+/* Smooth Fade In */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(-20px);}
+  to {opacity: 1; transform: translateY(0);}
+}

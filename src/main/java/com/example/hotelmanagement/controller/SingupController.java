@@ -1,8 +1,5 @@
 package com.example.hotelmanagement.controller;
-
-import com.example.hotelmanagement.dto.CustomerDto;
 import com.example.hotelmanagement.dto.CustomerSignupDTO;
-import com.example.hotelmanagement.entity.Customer;
 import com.example.hotelmanagement.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,24 +9,25 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class SingupController {
 
-    @Autowired private CustomerService customerService;
+    @Autowired
+    private CustomerService customerService;
 
     @GetMapping("/login")
     public String loginPage() {
-        return "login";
+        return "customer-dashboard";
     }
 
     @GetMapping("/signup")
     public String signupPage(Model model) {
-        model.addAttribute("customer", new CustomerDto());
+        model.addAttribute("customer", new CustomerSignupDTO());
         return "signup";
     }
 
     @PostMapping("/signup")
     public String register(@ModelAttribute("customer") CustomerSignupDTO dto, Model model) {
-        Customer customer = customerService.toEntity(dto);
-        customerService.createCustomer(customer);
-        model.addAttribute("success", "Account created! Please login.");
-        return "login";
+        customerService.registerNewCustomer(dto);
+        model.addAttribute("success", "Account created successfully! ");
+        return "customer-dashboard";
     }
+
 }

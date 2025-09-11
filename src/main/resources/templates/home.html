@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Booking - Home</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/homeStyle.css">
+
+  <!-- Font Awesome (for icons) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Cinzel:wght@500;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="background">
+    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1600" class="active">
+    <img src="https://images.unsplash.com/photo-1748652252546-6bea5d896bd4?w=1600">
+    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1600">
+    <img src="https://images.unsplash.com/photo-1744000311635-0280df5cc00e?w=1600">
+  </div>
+
+  <header>
+    <nav>
+      <a href="home.html"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="javascript:void(0)" onclick="openModal('signupModal')"><i class="fa-solid fa-user-plus"></i> SignUp</a>
+      <a href="javascript:void(0)" onclick="openModal('loginModal')"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>Welcome to Paradise Hotel</h1>
+    <p>Experience luxury and comfort in the heart of the city. Book your stay now and enjoy world-class hospitality.</p>
+    <button class="book-btn" onclick="openModal('signupModal')">Book Now</button>
+  </div>
+
+  <!-- Rooms Section -->
+  <section>
+    <h3 class="center">Our Rooms</h3>
+    <div class="rooms">
+      <div class="room-card">
+        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1350&q=80" alt="Single Room">
+        <h4>Single Room</h4>
+        <p>Perfect for solo travelers with modern amenities and cozy comfort.</p>
+      </div>
+
+      <div class="room-card">
+        <img src="https://images.unsplash.com/flagged/photo-1556438758-8d49568ce18e?auto=format&fit=crop&w=1174&q=80" alt="Double Room">
+        <h4>Double Room</h4>
+        <p>Ideal for two guests with elegant design and relaxing atmosphere.</p>
+      </div>
+
+      <div class="room-card">
+        <img src="https://images.unsplash.com/photo-1737517302831-e7b8a8eaa97c?auto=format&fit=crop&w=1170&q=80" alt="Family Suite">
+        <h4>Family Suite</h4>
+        <p>Spacious and designed for families with extra comfort and luxury.</p>
+      </div>
+
+      <div class="room-card">
+        <img src="https://images.unsplash.com/photo-1565623833408-d77e39b88af6?auto=format&fit=crop&w=1332&q=80" alt="Luxury Suite">
+        <h4>Luxury Suite</h4>
+        <p>Experience premium luxury with breathtaking views and private lounge.</p>
+      </div>
+
+      <div class="room-card">
+        <img src="https://images.unsplash.com/photo-1556020685-ae41abfc9365?auto=format&fit=crop&w=687&q=80" alt="Standard Room">
+        <h4>Standard Room</h4>
+        <p>Affordable yet stylish with everything you need for a perfect stay.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <h2>Hotel Details</h2>
+      <p>Located in the prime area, Paradise Hotel offers fine dining, a spa, gym, and pool with breathtaking views.</p>
+    </div>
+  </section>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('loginModal')">&times;</span>
+      <h2>Login</h2>
+      <form action="/login" method="post">
+        <label>Email:</label>
+        <input type="email" name="email" required>
+        <label>Password:</label>
+        <input type="password" name="password" required>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Signup Modal -->
+  <div id="signupModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('signupModal')">&times;</span>
+      <h2>Sign Up</h2>
+      <form action="/signup" method="post">
+        <label>Name:</label>
+        <input type="text" name="customerName" required>
+        <label>Email:</label>
+        <input type="email" name="email" required>
+		<label>Phone:</label>
+		       <input type="phone" name="phone" required>
+        <label>Password:</label>
+        <input type="password" name="password" required>
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const images = document.querySelectorAll('.background img');
+    let current = 0;
+
+    setInterval(() => {
+      images[current].classList.remove('active');
+      current = (current + 1) % images.length;
+      images[current].classList.add('active');
+    }, 3000);
+
+    function openModal(id) {
+      document.getElementById(id).style.display = "block";
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>

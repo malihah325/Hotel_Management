@@ -1,5 +1,7 @@
 package com.example.hotelmanagement.dto;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +15,7 @@ public class CustomerSignupDTO {
     private String customerName;
     private String email;
     private String phone;
-    private String password; // only for signup
+    private String password;
+    private LocalDate registeredAt;
 }
 

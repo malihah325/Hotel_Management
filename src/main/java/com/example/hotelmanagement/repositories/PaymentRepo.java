@@ -7,12 +7,16 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PaymentRepo extends JpaRepository<Payment, Long> {
 	List<Payment> findByCustomer(Customer customer);
-	Optional<Payment> findByBookingId(Long bookingId);
-
+	@Query("SELECT p FROM Payment p WHERE p.booking.id = :bookingId")
+    Optional<Payment> findByBookingId(@Param("bookingId") Long bookingId);
+	 boolean existsByAccountNumber(String accountNumber); // ✅ for uniqueness check
+	 boolean existsByCustomer(Customer customer);
 
 }

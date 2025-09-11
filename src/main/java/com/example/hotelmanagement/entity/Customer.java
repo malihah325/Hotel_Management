@@ -1,31 +1,34 @@
 package com.example.hotelmanagement.entity;
-
 import com.example.hotelmanagement.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Data
+@Table(name = "customers")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "customers")
 public class Customer {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String customerName;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
     private String phone;
+
     private LocalDate registeredAt;
+
     @Enumerated(EnumType.STRING)
     private Role role;
-    private String password;
 
-  
-
+    @Column(nullable = false)
+    private String password; // keep only in entity
 }

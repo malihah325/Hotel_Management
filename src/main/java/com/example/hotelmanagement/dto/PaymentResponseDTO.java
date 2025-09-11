@@ -1,24 +1,23 @@
 package com.example.hotelmanagement.dto;
 
 import com.example.hotelmanagement.enums.PaymentMethod;
+import lombok.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-@Data
-@Builder
-@AllArgsConstructor
+import java.time.LocalDate;
+
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PaymentResponseDTO {
     private Long paymentId;
-    private String accountNumber;
+    private double accountBalance;
     private PaymentMethod paymentMethod;
     private double totalAmount;
+    private String accountNumber;
     private boolean paid;
     private Long bookingId;
-
-
-
-   
+    private LocalDate paymentDate;
+    private String message;
 }

@@ -1,32 +1,29 @@
 package com.example.hotelmanagement.services;
-
 import com.example.hotelmanagement.entity.Customer;
 import com.example.hotelmanagement.repositories.CustomerRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerdetailService implements UserDetailsService {
 
-    @Autowired
-    private CustomerRepo customerRepository;
+   
+    private final CustomerRepo customerRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    	Customer customer = customerRepository.findByEmail(email);
-    	if (customer == null) {
-    	    throw new UsernameNotFoundException("Customer not found");
-    	}
-
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Customer not found with email: " + email));
 
         return new org.springframework.security.core.userdetails.User(
-            customer.getEmail(),
-            customer.getPassword(),
-            Collections.singleton(new SimpleGrantedAuthority("ROLE_CUSTOMER"))
-        );
+        	    customer.getEmail(),
+        	    customer.getPassword(),
+        	    Collections.singleton(new SimpleGrantedAuthority("ROLE_" + customer.getRole().name()))
+        	);
+
     }
 }

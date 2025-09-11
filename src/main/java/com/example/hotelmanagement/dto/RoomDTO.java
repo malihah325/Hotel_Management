@@ -2,31 +2,20 @@ package com.example.hotelmanagement.dto;
 
 import com.example.hotelmanagement.enums.RoomStatus;
 import com.example.hotelmanagement.enums.RoomType;
+import lombok.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RoomDTO {
-
     private Long id;
-
     private int roomCapacity;
     private String description;
-    private int ratings;
+    private Double ratings;
     private Double discount;
     private RoomStatus status;
-
-    private double priceperDay;
+    private Double priceperDay;
     private RoomType roomType;
-
-
- 
-   
 }
