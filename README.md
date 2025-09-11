@@ -1,145 +1,140 @@
-🏨 Hotel Management System (Backend)
-📌 Overview
+🏨 Hotel Management System
 
-The Hotel Management System Backend is built using Spring Boot to handle core hotel operations such as managing rooms, customers, and bookings.
-This backend provides REST APIs for creating, updating, and retrieving hotel-related data, including booking workflows, payment methods, and room availability.
+A full-stack hotel management application** built with Spring Boot, Thymeleaf**, and MySQL.
+It provides functionalities for admins and customers, including room booking, payments, and user authentication.
 
-It is designed following clean architecture principles with proper separation of concerns into Controllers, Services, Repositories, and DTO Converters.
+🚀 Features
 
-⚙️ Tech Stack
+🔹 Customer
 
-Java 17+
+* Sign up and log in securely (Spring Security).
+* Browse available rooms based on check-in/check-out dates.
+* Make bookings and view booking history.
+* Pay for bookings with validation (insufficient/excess payments handled).
+* Cancel bookings (if not already paid).
 
-Spring Boot 3+
+🔹 Admin
 
-Spring Data JPA (Hibernate)
+* Manage rooms (CRUD operations).
+* View and manage customer details.
+* Track bookings with statuses:
 
-MySQL / PostgreSQL
+  * PENDING → Awaiting Payment
+  * CONFIRMED→ Successfully Booked
+  * CANCELLED → Cancelled by customer/admin
+  * UPDATEREQUIRED → Needs update before confirmation
+* Manage payments linked to bookings.
 
-Lombok
+---
 
-Thymeleaf (for server-side rendering if required)
+🛠️ Tech Stack
 
-Maven / Gradle
+* Backend: Spring Boot (Java), Spring Data JPA, Spring Security
+* Frontend: Thymeleaf, HTML, CSS, JavaScript (with modal-based login/signup)
+* Database: MySQL (JPA/Hibernate ORM)
+* Libraries: Lombok, Validation API
+* Build Tool: Gradel.
 
-📂 Project Structure
-hotel-management-backend/
- ├── src/main/java/com/example/hotelmanagement/
- │   ├── controller/        # REST Controllers (Room, Customer, Booking)
- │   ├── service/           # Business logic services
- │   ├── repository/        # Spring Data JPA Repositories
- │   ├── dto/               # Data Transfer Objects
- │   ├── helperClass/       # Entity <-> DTO Converters
- │   ├── model/             # JPA Entities (Room, Customer, Booking)
- │   └── HotelManagementApplication.java
- ├── src/main/resources/
- │   ├── application.properties  # DB Configurations
- │   └── schema.sql / data.sql   # Optional DB Init
- └── pom.xml
+---
 
-🏗️ Features Implemented
+⚙️ Installation
 
-✅ Room Management
+### 1️⃣ Clone the repository
 
-Add, update, delete, and fetch rooms
+```bash
+git clone https://github.com/your-username/hotel-management-system.git
+cd hotel-management-system
+```
 
-Manage room types, availability, and pricing
+ 2️⃣ Configure Database (MySQL)
 
-✅ Customer Management
+Create a database in MySQL:
 
-Register customers with role support (Admin, Guest, etc.)
+```sql
+CREATE DATABASE hotel;
+```
 
-Store contact details and authentication info
+Update your `application.properties`:
 
-✅ Booking Management
-
-Create and manage bookings
-
-Check-in & Check-out workflow
-
-Apply discounts and calculate final prices
-
-Support multiple payment methods
-
-✅ DTO Conversion Layer
-
-Clean separation between entities and DTOs
-
-Easy request/response mapping
-
-🔑 Example API Usage
-1️⃣ Create Booking (POST /api/bookings)
-
-Request Body Example:
-
-{
-  "checkInDate": "2025-08-17",
-  "checkOutDate": "2025-08-20",
-  "roomId": 1,
-  "customerId": 5,
-  "paymentMethod": "ACCOUNT",
-  "totalPrice": 500.0,
-  "bookingStatus": "CONFIRMED",
-  "discountApplied": true,
-  "accountNumber": "123456789",
-  "checkedIn": false,
-  "discountAmount": 50.0
-}
-
-
-Response Example:
-
-{
-  "id": 1001,
-  "checkInDate": "2025-08-17",
-  "checkOutDate": "2025-08-20",
-  "totalPrice": 500.0,
-  "bookingStatus": "CONFIRMED",
-  "room": {
-    "id": 1,
-    "roomType": "SINGLE",
-    "pricePerDay": 200.0,
-    "status": "BOOKED"
-  },
-  "customer": {
-    "id": 5,
-    "customerName": "John Doe",
-    "email": "john@example.com",
-    "role": "USER"
-  }
-}
-
-🛠️ Setup & Installation
-1️⃣ Clone the Repository
-git clone https://github.com/your-username/hotel-management-backend.git
-cd hotel-management-backend
-
-2️⃣ Configure Database
-
-Update src/main/resources/application.properties:
-
-spring.datasource.url=jdbc:mysql://localhost:3306/hotel_db
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/hotel
 spring.datasource.username=root
-spring.datasource.password=yourpassword
+spring.datasource.password=your_password
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+```
+
+ 3️⃣ Build and Run
+ ``Run
 
 
 
+### 4️⃣ Access the Application
 
-The backend will run at 👉 http://localhost:8080
+* 🌐 Open in browser: `http://localhost:8080`
+* 👤 Default Admin Login:
 
-🚀 Future Enhancements
+  * **Username:** `admin@123`
+  * **Password:** `admin123`
 
-JWT Authentication & Role-based Access
+---
 
-Payment Gateway Integration
+## 📌 Project Structure
 
-Email/SMS Notifications for bookings
+```
+src/main/java/com/example/hotelmanagement/
+│── controller/        # Web Controllers (Admin, Customer, home, Signup)
+│── dto/               # Data Transfer Objects
+│── entity/            # Entities (Booking, Customer, Payment, Room)
+│── enums/             # Enums (BookingStatus, PaymentMethod, Role, RoomStatus)
+│── handler/           # Exception Handlers
+│── repositories/      # Spring Data JPA Repositories
+│── services/          # Business Logic (BookingService, PaymentService, etc.)
+│── converters/        # DTO ↔ Entity converters
+```
 
-Reporting & Analytics
+---
 
-👨‍💻 Author
+📸 Screenshots
 
-Developed by Mlaiha Habib
-🔗 GitHub: malihah325
+ 🏠 Customer Dashboard
+
+(https://docs.google.com/document/d/1Z99MqGrCvgY44sBK2PygYeyYrG7fYgQ0Z8MI27_qZW4/edit?tab=t.0)
+
+📋 Admin Room Management
+(https://docs.google.com/document/d/113UENFGLlfBGKMGB91NNzde_DAlC006e_BUCnFIFcWI/edit?tab=t.0)
+
+---
+
+ 🔒 Security
+
+* Spring Security with role-based access (`ADMIN` & `CUSTOMER`).
+* Passwords stored securely using hashing.
+* Customers cannot access admin pages.
+
+---
+
+ 🐛 Known Issues / Improvements
+
+* ✅ Prevents double booking with overlapping dates.
+* ✅ Validates payment against total amount.
+* 🔜 Add email notifications for bookings.
+* 🔜 REST API endpoints for external integrations.
+
+---
+ 🤝 Contributing
+
+1. Fork the repo
+2. Create a new branch (`feature/your-feature`)
+3. Commit your changes
+4. Push to your branch
+5. Create a Pull Request
+
+---
+
+✨ **Built with passion using Spring Boot & Thymeleaf** ✨
+
+---
+author:Maliha Habib.
+
+Would you like me to also **write a short “Quick Demo Workflow” section** (like a step-by-step: signup → login → book room → make payment) so someone testing your repo quickly knows how to use it?
