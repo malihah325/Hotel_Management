@@ -1,6 +1,6 @@
 🏨 Hotel Management System
 
-A full-stack hotel management application** built with Spring Boot, Thymeleaf**, and MySQL.
+A full-stack hotel management application  built with Spring Boot, Thymeleaf**, and MySQL.
 It provides functionalities for admins and customers, including room booking, payments, and user authentication.
 
 🚀 Features
@@ -109,26 +109,16 @@ src/main/java/com/example/hotelmanagement/
 
 ---
 
- 🐛 Known Issues / Improvements
+ 🐛 Known Issues
 
 * ✅ Prevents double booking with overlapping dates.
 * ✅ Validates payment against total amount.
 * 🔜 Controller endpoints for external integrations.
 
 ---
- 🤝 Contributing
-
-1. Fork the repo
-2. Create a new branch (`feature/your-feature`)
-3. Commit your changes
-4. Push to your branch
-5. Create a Pull Request
-
----
 
 ✨ **Built with passion using Spring Boot & Thymeleaf** ✨
 
 ---
-author:Maliha Habib.
+Author:Maliha Habib.
 
-Would you like me to also **write a short “Quick Demo Workflow” section** (like a step-by-step: signup → login → book room → make payment) so someone testing your repo quickly knows how to use it?
