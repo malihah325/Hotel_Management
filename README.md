@@ -17,12 +17,7 @@ It provides functionalities for admins and customers, including room booking, pa
 
 * Manage rooms (CRUD operations).
 * View and manage customer details.
-* Track bookings with statuses:
-
-  * PENDING → Awaiting Payment
-  * CONFIRMED→ Successfully Booked
-  * CANCELLED → Cancelled by customer/admin
-  * UPDATEREQUIRED → Needs update before confirmation
+* Track bookings with status.
 * Manage payments linked to bookings.
 
 ---
