@@ -1,6 +1,6 @@
 🏨 Hotel Management System
 
-A full-stack hotel management application  built with Spring Boot, Thymeleaf, and MySQL.
+A full-stack hotel management application  built with Spring Boot, Thymeleaf , and MySQL.
 It provides functionalities for admins and customers, including room booking, payments, and user authentication.
 
 🚀 Features
