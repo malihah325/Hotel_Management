@@ -118,7 +118,6 @@ src/main/java/com/example/hotelmanagement/
 
 * ✅ Prevents double booking with overlapping dates.
 * ✅ Validates payment against total amount.
-* 🔜 Add email notifications for bookings.
 * 🔜 Controller endpoints for external integrations.
 
 ---
