@@ -27,7 +27,7 @@ public class Customer {
     private LocalDate registeredAt;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role =Role.CUSTOMER;
 
     @Column(nullable = false)
     private String password; // keep only in entity

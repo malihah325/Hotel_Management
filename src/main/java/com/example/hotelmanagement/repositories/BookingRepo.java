@@ -32,12 +32,7 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
     // Find all bookings by customer
     List<Booking> findByCustomer(Customer customer);
 
-    // Check if a customer has any bookings
-    boolean existsByCustomer(Customer customer);
-
-    // Check if a room is booked today
-    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.room.id = :roomId AND :today BETWEEN b.checkInDate AND b.checkOutDate")
-    boolean isRoomBookedToday(@Param("roomId") Long roomId, @Param("today") LocalDate today);
+ 
 
     // Find all bookings for a room
     List<Booking> findByRoom(Room room);

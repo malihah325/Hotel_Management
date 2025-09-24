@@ -19,7 +19,6 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import java.io.IOException;
 
 @Configuration
 public class SecurityConfiguration {
@@ -87,29 +86,31 @@ public class SecurityConfiguration {
     }
 
     // Security filter chain
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/", "/home", "/signup", "/login", "/css/**", "/js/**", "/images/**").permitAll()
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
-                    .anyRequest().authenticated()
+    // SecurityConfiguration (only the filterChain bean shown / replace existing filterChain method)
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/home", "/signup", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/customer-dashboard/**").hasRole("CUSTOMER")
+                .anyRequest().authenticated()
+        )
+        .formLogin(form -> form
+        		   .loginPage("/login")
+        	        .loginProcessingUrl("/login")
+        	        //.defaultSuccessUrl("/customer-dashboard", true) // ❌ remove this
+        	        .successHandler(customSuccessHandler())          // ✅ use your handler
+        	        .failureUrl("/login?error=true")
+        	        .permitAll()
             )
-            .formLogin(form -> form
-                    .loginPage("/login")
-                    .usernameParameter("email")   // <-- important for customer login
-                    .passwordParameter("password")
-                    .successHandler(customSuccessHandler())
-                    .permitAll()
-            )
-            .logout(logout -> logout
-                    .logoutSuccessUrl("/home")
-                    .permitAll()
-            );
+        .logout(logout -> logout
+                .logoutSuccessUrl("/home?logout=true")
+                .permitAll()
+        );
 
-        return http.build();
-    }
+    return http.build();
+}
+
 }

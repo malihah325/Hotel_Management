@@ -57,6 +57,7 @@ public class RoomService {
         room.setStatus(Optional.ofNullable(dto.getStatus()).orElse(room.getStatus()));
         room.setDescription(Optional.ofNullable(dto.getDescription()).orElse(room.getDescription()));
         room.setRatings(dto.getRatings());
+        room.setRoomNumber(dto.getRoomNumber());
         Room saved = roomRepo.save(room);
         return roomConverter.convertToDTO(saved);
     }
@@ -70,6 +71,7 @@ public class RoomService {
         room.setStatus(Optional.ofNullable(updatedRoom.getStatus()).orElse(room.getStatus()));
         room.setDescription(Optional.ofNullable(updatedRoom.getDescription()).orElse(room.getDescription()));
         room.setRatings(updatedRoom.getRatings());
+        room.setRoomNumber(updatedRoom.getRoomNumber());
         return roomRepo.save(room);
     }
 

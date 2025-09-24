@@ -101,6 +101,7 @@
       <span class="close" onclick="closeModal()">&times;</span>
       <h3>Add New Room</h3>
       <form th:action="@{/admin/rooms}" method="post">
+		<input  type="number" name="roomNumber" placeholder="0000" required />
         <select name="roomType" required>
           <option value="SINGLE">Single</option>
           <option value="DOUBLE">Double</option>
@@ -135,14 +136,14 @@
   <table class="table ">
     <thead class="table-dark">
       <tr>
-        <th>ID</th><th>Type</th><th>Capacity</th><th>Price/Day</th>
+        <th>Room Number</th><th>Type</th><th>Capacity</th><th>Price/Day</th>
         <th>Discount</th><th>Description</th><th>Status</th><th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr th:each="room : ${rooms}">
         <form th:action="@{'/admin/rooms/' + ${room.id} + '/update'}" method="post">
-          <td th:text="${room.id}"></td>
+          <td><input type="number" name="roomNumber" th:value="${room.roomNumber}"/></td>
           <td><input type="text" name="roomType" th:value="${room.roomType}"/></td>
           <td><input type="number" name="roomCapacity" th:value="${room.roomCapacity}"/></td>
           <td><input type="number" step="0.01" name="priceperDay" th:value="${room.priceperDay}"/></td>

@@ -95,8 +95,9 @@ label {
 }
 
 input, select, textarea {
-    padding: 12px;
-    border: none;
+	padding: 0.8rem;
+	border: none;
+	width: 8rem;
     border-radius: 8px;
     font-size: 1rem;
     outline: none;

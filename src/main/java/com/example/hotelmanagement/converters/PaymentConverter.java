@@ -1,7 +1,5 @@
 package com.example.hotelmanagement.converters;
-
 import org.springframework.stereotype.Component;
-
 import com.example.hotelmanagement.dto.PaymentResponseDTO;
 import com.example.hotelmanagement.entity.Payment;
 
@@ -22,4 +20,5 @@ public class PaymentConverter {
                 .message(null) // message is dynamic (service layer)
                 .build();
     }
+   
 }

@@ -5,24 +5,20 @@ import org.springframework.stereotype.Component;
 import com.example.hotelmanagement.dto.BookingDto;
 import com.example.hotelmanagement.entity.Booking;
 
+import lombok.AllArgsConstructor;
+
 @Component
+@AllArgsConstructor
 public class BookingConverter {
 
     private final RoomConverter roomConverter;
     private final CustomerConverter customerConverter;
     private final PaymentConverter paymentConverter;
 
-    public BookingConverter(RoomConverter roomConverter,
-                            CustomerConverter customerConverter,
-                            PaymentConverter paymentConverter) {
-        this.roomConverter = roomConverter;
-        this.customerConverter = customerConverter;
-        this.paymentConverter = paymentConverter;
-    }
-
     public BookingDto convertToDTO(Booking booking) {
-        if (booking == null) return null;
-
+        if (booking == null) {
+            return new BookingDto(); // returns empty DTO instead of null
+        }
         return BookingDto.builder()
                 .id(booking.getId())
                 .checkInDate(booking.getCheckInDate())

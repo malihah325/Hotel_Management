@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 public class RoomDTO {
     private Long id;
+    private Integer roomNumber;
     private int roomCapacity;
     private String description;
     private Double ratings;

@@ -39,6 +39,7 @@ public class CustomerDashBoardController {
         return "customer-dashboard";
     }
 
+
     // -------------------- SEARCH ROOMS --------------------
     @GetMapping("/rooms")
     public String availableRooms(@RequestParam("checkInDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
@@ -159,8 +160,8 @@ public class CustomerDashBoardController {
 
 
     private void populateDashboard(Model model, Customer customer, List<RoomDTO> availableRooms) {
-    	 model.addAttribute("customer", customer);
-    	    model.addAttribute("bookings", bookingService.getBookingsByCustomer(customer));
+    	model.addAttribute("customer", customer); // ✅ fix for Thymeleaf
+        model.addAttribute("bookings", bookingService.getBookingsByCustomer(customer));
 
     	    if (availableRooms == null || availableRooms.isEmpty()) {
     	        model.addAttribute("noRoomsMessage", "🚫 Sorry, no rooms available for the selected dates.");

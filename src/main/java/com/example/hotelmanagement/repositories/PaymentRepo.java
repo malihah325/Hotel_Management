@@ -16,7 +16,4 @@ public interface PaymentRepo extends JpaRepository<Payment, Long> {
 	List<Payment> findByCustomer(Customer customer);
 	@Query("SELECT p FROM Payment p WHERE p.booking.id = :bookingId")
     Optional<Payment> findByBookingId(@Param("bookingId") Long bookingId);
-	 boolean existsByAccountNumber(String accountNumber); // ✅ for uniqueness check
-	 boolean existsByCustomer(Customer customer);
-
 }

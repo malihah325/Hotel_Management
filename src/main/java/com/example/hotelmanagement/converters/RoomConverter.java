@@ -19,6 +19,7 @@ public class RoomConverter {
                 .status(room.getStatus())
                 .description(room.getDescription())
                 .ratings(room.getRatings())
+                .roomNumber(room.getRoomNumber())
                 .build();
     }
 
@@ -33,6 +34,7 @@ public class RoomConverter {
                 .status(dto.getStatus())
                 .description(dto.getDescription())
                 .ratings(dto.getRatings())
+                .roomNumber(dto.getRoomNumber())
                 .build();
     }
 }

@@ -83,9 +83,26 @@
     <div class="modal-content">
       <span class="close" onclick="closeModal('loginModal')">&times;</span>
       <h2>Login</h2>
+
+      <!-- Show error if login failed -->
+      <div th:if="${errorMsg}" class="error-message">
+        <p th:text="${errorMsg}"></p>
+      </div>
+
+      <!-- Show logout success message -->
+      <div th:if="${logoutMsg}" class="success-message">
+        <p th:text="${logoutMsg}"></p>
+      </div>
+
+      <!-- Show signup success message -->
+      <div th:if="${param.signupSuccess}" class="success-message">
+        <p>🎉 Signup successful! Please log in.</p>
+      </div>
+
+      <!-- form posts to /login (loginProcessingUrl) -->
       <form action="/login" method="post">
         <label>Email:</label>
-        <input type="email" name="email" required>
+        <input type="email" name="username" required> <!-- MUST be 'username' -->
         <label>Password:</label>
         <input type="password" name="password" required>
         <button type="submit">Login</button>
@@ -103,8 +120,8 @@
         <input type="text" name="customerName" required>
         <label>Email:</label>
         <input type="email" name="email" required>
-		<label>Phone:</label>
-		       <input type="phone" name="phone" required>
+        <label>Phone:</label>
+        <input type="phone" name="phone" required>
         <label>Password:</label>
         <input type="password" name="password" required>
         <button type="submit">Sign Up</button>
@@ -131,6 +148,14 @@
     window.onclick = function(event) {
       if (event.target.classList.contains('modal')) {
         event.target.style.display = "none";
+      }
+    }
+
+    // ✅ Auto-open modal based on URL parameters
+    window.onload = function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('error') || params.has('logout') || params.has('signupSuccess')) {
+        openModal('loginModal');
       }
     }
   </script>
